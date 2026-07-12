@@ -77,14 +77,9 @@
 
 ### Built With
 
-Sản phẩm được xây dựng hoàn toàn bằng ngôn ngữ Rust nguyên bản cho hiệu năng cực hạn và không phụ thuộc vào các công cụ bên ngoài hệ thống (như Pandoc):
-
-- [![Rust][Rust-shield]][Rust-url]
-- [![Ureq][Ureq-shield]][Ureq-url]
-- [![Pulldown-Cmark][Markdown-shield]][Markdown-url]
+Sản phẩm được xây dựng hoàn toàn bằng ngôn ngữ Rust nguyên bản cho hiệu năng cực hạn và không phụ thuộc vào các công cụ bên ngoài hệ thống (như Pandoc).
 
 <p align="right">(<a href="#readme-top">về đầu trang</a>)</p>
-
 
 
 ## Getting Started
@@ -98,7 +93,7 @@ Máy tính của bạn cần cài đặt sẵn môi trường biên dịch Rust 
   ```sh
   curl --proto '=https' --tlsv1.2 -sSf [https://sh.rustup.rs](https://sh.rustup.rs) | sh
 
-```
+  ```
 
 ### Installation
 
@@ -140,18 +135,18 @@ cargo build --release
 Tạo một tệp `links.txt` chứa danh sách các URL cần tải (mỗi dòng một URL), sau đó chạy lệnh:
 
 ```sh
-cargo run -- --mode web --input links.txt --title "Cẩm Nang Lập Trình Rust" --output target/debug/cam_nang
+cargo run -- --mode web --input links.txt --title "Cẩm Nang Lập Trình Rust"
 
 ```
 
-*Hệ thống sẽ tự động bypass lỗi 403, tải bài viết, tối ưu ảnh offline và lưu tệp thành `cam_nang_2026-07-12_14-45.epub`.*
+*Hệ thống sẽ tự động tải bài viết, tối ưu ảnh offline và lưu tệp thành `2026-07-12_14-45.epub`.*
 
 ### Chế độ 2: Biên dịch thư mục Markdown sẵn có (Mode MD)
 
 Chuẩn bị một thư mục chứa các file bài viết định dạng `.md` (Ví dụ: `01_intro.md`, `02_chap1.md`), sau đó gõ lệnh:
 
 ```sh
-cargo run -- --mode md --input ./my_chapters/ --title "Truyện Tôi Viết" --output target/debug/truyen_hay
+cargo run -- --mode md --input ./my_chapters/ --title "Truyện Tôi Viết" --output truyen_hay.epub
 
 ```
 
@@ -167,7 +162,7 @@ cargo run -- --mode md --input ./my_chapters/ --title "Truyện Tôi Viết" --o
 - [ ] Tính năng tự động tạo ảnh bìa (Cover Image) từ tiêu đề sách.
 - [ ] Hỗ trợ đa luồng (Multi-threading) tăng tốc tải bài viết đồng thời.
 
-Xem danh sách [open issues](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/duykhanh472/doc_nhanh/issues) để cập nhật và đề xuất các tính năng mới cho cộng đồng.
+Xem danh sách [open issues](https://github.com/duykhanh472/doc_nhanh/issues) để cập nhật và đề xuất các tính năng mới cho cộng đồng.
 
 ## Contributing
 
