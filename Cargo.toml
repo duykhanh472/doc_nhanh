@@ -1,0 +1,28 @@
+[package]
+name = "doc_nhanh"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+ureq = "3.3.0"
+dom_smoothie = "0.18.0"
+scraper = "0.27.0"
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png"] }
+url = "2.5"
+chrono = "0.4"
+zip = "8.6.0"
+pulldown-cmark = "0.13.4"
+
+[dev-dependencies]
+# Dựng server mạng giả lập trong bộ nhớ RAM
+httpmock = "0.8.3" 
+# Tạo file links.txt và file .epub tạm thời tự xóa sau khi test xong  
+tempfile = "3.10"  
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
