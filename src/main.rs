@@ -13,9 +13,9 @@ use zip::write::SimpleFileOptions;
 /// Công cụ CLI tải bài viết từ Internet và đóng gói thành tệp EPUB để đọc offline.
 #[derive(Parser, Debug)]
 #[command(name = "doc_nhanh")]
-#[command(author = "Your Name <your.email@example.com>")]
+#[command(author = "idk")]
 #[command(version = "0.1.0")]
-#[command(about = "Tải bài viết và đóng gói thành tệp EPUB chuẩn chỉnh", long_about = None)]
+#[command(about = "Tải cả đống bài viết và đóng gói thành tệp EPUB", long_about = None)]
 struct Args {
     /// Chế độ hoạt động: 'web' (cào link từ file) hoặc 'md' (chuyển đổi thư mục markdown)
     #[arg(short, long, default_value = "web")]
@@ -307,7 +307,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     "   └── ⚠️  [Cảnh báo] Không tải được ảnh tại: {}",
                                     absolute_img_url
                                 );
-                                continue; // Chỉ bỏ qua bức ảnh lỗi này, vòng lặp ảnh vẫn chạy tiếp
+                                continue;
                             }
                         };
 
@@ -323,7 +323,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     "   └── ⚠️  [Cảnh báo] Định dạng ảnh không hợp lệ tại: {}",
                                     absolute_img_url
                                 );
-                                continue; // Ảnh hỏng/gif không hỗ trợ -> bỏ qua ảnh
+                                continue;
                             }
                         };
 
@@ -346,14 +346,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 data: jpeg_bytes,
                             });
 
-                            img_replacements
-                                .push((src.to_string(), format!("Images/{}", filename)));
+                            let new_src = format!("Images/{}", filename);
+
+                            // 👉 GIẢI PHÁP 1: Ép thay thế cả bản gốc lẫn bản mã hóa Entity (& -> &amp;) để không bị hụt
+                            img_replacements.push((src.to_string(), new_src.clone()));
+                            img_replacements.push((src.replace("&", "&amp;"), new_src));
+
+                            // 👉 GIẢI PHÁP 2: Tìm và xóa sổ hoàn toàn thuộc tính `srcset` bẫy của WordPress
+                            if let Some(srcset) = img_element.value().attr("srcset") {
+                                img_replacements
+                                    .push((format!("srcset=\"{}\"", srcset), String::new()));
+                                img_replacements.push((
+                                    format!("srcset=\"{}\"", srcset.replace("&", "&amp;")),
+                                    String::new(),
+                                ));
+                            }
                         }
                     }
                 }
 
-                for (old_src, new_src) in img_replacements {
-                    content_html = content_html.replace(&old_src, &new_src);
+                // Thực hiện thay thế hàng loạt vào chuỗi HTML
+                for (old_str, new_str) in img_replacements {
+                    content_html = content_html.replace(&old_str, &new_str);
                 }
 
                 // Bọc nội dung vào template XHTML chuẩn của EPUB 3
@@ -365,11 +379,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 <link href="CSS/template.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-    <h1>{}</h1>
     {}
 </body>
 </html>"#,
-                    article.title, article.title, content_html
+                    article.title, content_html
                 );
 
                 // Đưa chương hoàn chỉnh vào sách
@@ -596,36 +609,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     zip.write_all(toc_ncx.as_bytes())?;
 
     // 4. Ghi file OEBPS/CSS/template.css (Hardcode style hiển thị đẹp mắt)
-    let css_content = r#"
-body {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    margin: 5%, 5%, 5%, 5%;
-    line-height: 1.6;
-    color: #111111;
-}
-h1 {
-    text-align: center;
-    color: #2c3e50;
-    font-size: 1.8em;
-    margin-top: 1em;
-    margin-bottom: 1.5em;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 0.5em;
-}
-p {
+    let css_content = r#"p {
     text-indent: 1.5em;
-    margin-bottom: 0.8em;
+    margin: 0;
     text-align: justify;
 }
+
+h1 {
+    text-align: center;
+    font-size: 1.8em;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
+}
+
 img {
     max-width: 100%;
     height: auto;
     display: block;
     margin: 1.5em auto;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
-"#;
+}"#;
     zip.start_file("OEBPS/CSS/template.css", options_deflated)?;
     zip.write_all(css_content.as_bytes())?;
     println!("+ [OK] Đã khởi tạo xong các tệp cấu trúc hệ thống & CSS.");
